@@ -7,7 +7,7 @@ using Suplex.Security.Principal;
 
 namespace Suplex.Security.WebApi
 {
-    [RoutePrefix( "custom" )]
+    [RoutePrefix( "suplex" )]
     public class SuplexController : ApiController   //, IDataAccessLayer
     {
         ISuplexDal _dal = null;
@@ -28,18 +28,18 @@ namespace Suplex.Security.WebApi
 
 
         //[HttpGet]
-        //[Route( "GetUserByUId" )]
+        //[Route( "users/{userUId}/" )]
         //public User GetUserByUId(Guid userUId)
         //{
-        //    throw new NotImplementedException();
+        //    return _dal.GetUserByUId( userUId );
         //}
 
-        //[HttpGet]
-        //[Route( "GetUserByName" )]
-        //public List<User> GetUserByName(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "users/{name}/" )]
+        public List<User> GetUserByName(string name)
+        {
+            return _dal.GetUserByName( name );
+        }
 
         //public User UpsertUser(User user)
         //{
