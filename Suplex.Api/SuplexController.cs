@@ -27,106 +27,120 @@ namespace Suplex.Security.WebApi
         }
 
 
-        //[HttpGet]
-        //[Route( "users/{userUId}/" )]
-        //public User GetUserByUId(Guid userUId)
-        //{
-        //    return _dal.GetUserByUId( userUId );
-        //}
-
         [HttpGet]
-        [Route( "users/{name}/" )]
-        public List<User> GetUserByName(string name)
+        [Route( "users/{userUId:Guid}/" )]
+        public User GetUserByUId(Guid userUId)
         {
-            return _dal.GetUserByName( name );
+            return _dal.GetUserByUId( userUId );
         }
 
-        //public User UpsertUser(User user)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "users/" )]
+        public List<User> GetUserByName(string name = null, bool exact = false)
+        {
+            return _dal.GetUserByName( name, exact );
+        }
 
-        //public void DeleteUser(Guid userUId)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "users/" )]
+        public User UpsertUser([FromBody]User user)
+        {
+            return _dal.UpsertUser( user );
+        }
 
-
-        //[HttpGet]
-        //[Route( "GetGroupByUId" )]
-        //public Group GetGroupByUId(Guid groupUId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[HttpGet]
-        //[Route( "GetGroupByName" )]
-        //public List<Group> GetGroupByName(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public Group UpsertGroup(Group group)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public void DeleteGroup(Guid groupUId)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpDelete]
+        [Route( "users/{userUId:Guid}/" )]
+        public void DeleteUser(Guid userUId)
+        {
+            _dal.DeleteUser( userUId );
+        }
 
 
-        //[HttpGet]
-        //[Route( "GetGroupMemberOf" )]
-        //public IEnumerable<GroupMembershipItem> GetGroupMemberOf(Guid memberUId, bool includeDisabledMembership = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "groups/{groupUId:Guid}" )]
+        public Group GetGroupByUId(Guid groupUId)
+        {
+            return _dal.GetGroupByUId( groupUId );
+        }
 
-        //[HttpGet]
-        //[Route( "GetGroupMembers" )]
-        //public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "groups/" )]
+        public List<Group> GetGroupByName(string name, bool exact = false)
+        {
+            return _dal.GetGroupByName( name, exact );
+        }
 
-        //[HttpGet]
-        //[Route( "GetGroupMembershipHierarchy" )]
-        //public IEnumerable<GroupMembershipItem> GetGroupMembershipHierarchy(Guid memberUId, bool includeDisabledMembership = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpPost]
+        [Route( "groups/" )]
+        public Group UpsertGroup(Group group)
+        {
+            return _dal.UpsertGroup( group );
+        }
 
-        //public GroupMembershipItem UpsertGroupMembership(GroupMembershipItem groupMembershipItem)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public void DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpDelete]
+        [Route( "groups/{groupUId:Guid}/" )]
+        public void DeleteGroup(Guid groupUId)
+        {
+            _dal.DeleteGroup( groupUId );
+        }
 
 
-        //[HttpGet]
-        //[Route( "GetGroupMembershipList" )]
-        //public MembershipList<SecurityPrincipalBase> GetGroupMembershipList(Group group, bool includeDisabledMembership = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "gm/{groupUId:Guid}/members" )]
+        public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
+        {
+            throw new NotImplementedException();
+        }
 
-        //[HttpGet]
-        //[Route( "GetGroupMembershipListOf" )]
-        //public MembershipList<Group> GetGroupMembershipListOf(SecurityPrincipalBase member, bool includeDisabledMembership = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "gm/{memberUId:Guid}/memberof" )]
+        public IEnumerable<GroupMembershipItem> GetGroupMemberOf(Guid memberUId, bool includeDisabledMembership = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        [Route( "gm/{memberUId:Guid}/hier" )]
+        public IEnumerable<GroupMembershipItem> GetGroupMembershipHierarchy(Guid memberUId, bool includeDisabledMembership = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route( "gm/" )]
+        public GroupMembershipItem UpsertGroupMembership(GroupMembershipItem groupMembershipItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route( "gm/items/" )]
+        public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpDelete]
+        [Route( "gm/" )]
+        public void DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        [HttpGet]
+        [Route( "gm/" )]
+        public MembershipList<SecurityPrincipalBase> GetGroupMembershipList(Group group, bool includeDisabledMembership = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpGet]
+        [Route( "gm/" )]
+        public MembershipList<Group> GetGroupMembershipListOf(SecurityPrincipalBase member, bool includeDisabledMembership = false)
+        {
+            throw new NotImplementedException();
+        }
 
 
 
