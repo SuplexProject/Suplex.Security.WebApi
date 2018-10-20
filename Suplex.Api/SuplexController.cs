@@ -8,7 +8,7 @@ using Suplex.Security.Principal;
 namespace Suplex.Security.WebApi
 {
     [RoutePrefix( "suplex" )]
-    public class SuplexController : ApiController   //, IDataAccessLayer
+    public class SuplexController : ApiController, ISuplexDal
     {
         ISuplexDal _dal = null;
 
@@ -41,7 +41,7 @@ namespace Suplex.Security.WebApi
             return _dal.GetUserByName( name, exact );
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route( "users/" )]
         public User UpsertUser([FromBody]User user)
         {
@@ -89,90 +89,111 @@ namespace Suplex.Security.WebApi
         [Route( "gm/{groupUId:Guid}/members" )]
         public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return _dal.GetGroupMembers( groupUId, includeDisabledMembership );
         }
 
         [HttpGet]
         [Route( "gm/{memberUId:Guid}/memberof" )]
         public IEnumerable<GroupMembershipItem> GetGroupMemberOf(Guid memberUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return _dal.GetGroupMemberOf( memberUId, includeDisabledMembership );
         }
 
         [HttpGet]
         [Route( "gm/{memberUId:Guid}/hier" )]
         public IEnumerable<GroupMembershipItem> GetGroupMembershipHierarchy(Guid memberUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return _dal.GetGroupMembershipHierarchy( memberUId, includeDisabledMembership );
         }
 
         [HttpPost]
         [Route( "gm/" )]
         public GroupMembershipItem UpsertGroupMembership(GroupMembershipItem groupMembershipItem)
         {
-            throw new NotImplementedException();
+            return _dal.UpsertGroupMembership( groupMembershipItem );
         }
 
         [HttpPost]
         [Route( "gm/items/" )]
         public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
         {
-            throw new NotImplementedException();
+            return _dal.UpsertGroupMembership( groupMembershipItems );
         }
 
         [HttpDelete]
         [Route( "gm/" )]
-        public void DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
+        public void DeleteGroupMembership([FromBody]GroupMembershipItem groupMembershipItem)
         {
-            throw new NotImplementedException();
+            _dal.DeleteGroupMembership( groupMembershipItem );
         }
 
 
         [HttpGet]
-        [Route( "gm/" )]
-        public MembershipList<SecurityPrincipalBase> GetGroupMembershipList(Group group, bool includeDisabledMembership = false)
+        [Route( "gm/ml/{groupUId:Guid}/members" )]
+        public MembershipList<SecurityPrincipalBase> GetGroupMembersList(Guid groupUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return _dal.GetGroupMembersList( new Group { UId = groupUId }, includeDisabledMembership );
+        }
+
+        MembershipList<SecurityPrincipalBase> ISuplexDal.GetGroupMembersList(Group group, bool includeDisabledMembership)
+        {
+            return _dal.GetGroupMembersList( group, includeDisabledMembership );
         }
 
         [HttpGet]
-        [Route( "gm/" )]
-        public MembershipList<Group> GetGroupMembershipListOf(SecurityPrincipalBase member, bool includeDisabledMembership = false)
+        [Route( "gm/ml/{memberUId:Guid}/memberof" )]
+        public MembershipList<Group> GetGroupMemberOfList(Guid memberUId, bool isMemberGroup = false, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            SecurityPrincipalBase member = isMemberGroup ? new Group { UId = memberUId } as SecurityPrincipalBase : new User { UId = memberUId } as SecurityPrincipalBase;
+            return _dal.GetGroupMemberOfList( member, includeDisabledMembership );
+        }
+
+        MembershipList<Group> ISuplexDal.GetGroupMemberOfList(SecurityPrincipalBase member, bool includeDisabledMembership)
+        {
+            return _dal.GetGroupMemberOfList( member, includeDisabledMembership );
         }
 
 
+        [HttpGet]
+        [Route( "so/all/" )]
+        public IEnumerable<ISecureObject> GetSecureObjects()
+        {
+            return _dal.GetSecureObjects();
+        }
 
-        //[HttpGet]
-        //[Route( "GetSecureObjectByUId" )]
-        //public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "so/{secureObjectUId:Guid}" )]
+        public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        {
+            return _dal.GetSecureObjectByUId( secureObjectUId, includeChildren, includeDisabled );
+        }
 
-        //[HttpGet]
-        //[Route( "GetSecureObjectByUniqueName" )]
-        //public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [Route( "so/" )]
+        public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        {
+            return _dal.GetSecureObjectByUniqueName( uniqueName, includeChildren, includeDisabled );
+        }
 
-        //[HttpGet]
-        //[Route( "UpsertSecureObject" )]
-        //public ISecureObject UpsertSecureObject(ISecureObject secureObject)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpPost]
+        [Route( "so/" )]
+        public ISecureObject UpsertSecureObject([FromBody]ISecureObject secureObject)
+        {
+            return _dal.UpsertSecureObject( secureObject );
+        }
 
-        //public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpPut]
+        [Route( "so/{newParentUId:Guid}" )]
+        public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
+        {
+            _dal.UpdateSecureObjectParentUId( secureObject, newParentUId );
+        }
 
-        //public void DeleteSecureObject(Guid secureObjectUId)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpDelete]
+        [Route( "so/{secureObjectUId:Guid}" )]
+        public void DeleteSecureObject(Guid secureObjectUId)
+        {
+            _dal.DeleteSecureObject( secureObjectUId );
+        }
     }
 }
