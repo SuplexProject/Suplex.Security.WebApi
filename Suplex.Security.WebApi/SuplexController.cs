@@ -121,8 +121,12 @@ namespace Suplex.Security.WebApi
         }
 
         [HttpDelete]
-        [Route( "gm/" )]
-        public void DeleteGroupMembership([FromBody]GroupMembershipItem groupMembershipItem)
+        [Route( "gm/{groupUId:Guid}" )]
+        public void DeleteGroupMembership(Guid groupUId, Guid memberUId)
+        {
+            _dal.DeleteGroupMembership( new GroupMembershipItem { GroupUId = groupUId, MemberUId = memberUId } );
+        }
+        void ISuplexDal.DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
         {
             _dal.DeleteGroupMembership( groupMembershipItem );
         }

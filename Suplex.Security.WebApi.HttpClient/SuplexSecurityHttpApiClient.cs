@@ -11,7 +11,7 @@ namespace Suplex.Security.WebApi
 {
     public class SuplexSecurityHttpApiClient : HttpApiClientBase, ISuplexDal
     {
-        string _rootPath = "/synapse/execute";
+        string _rootPath = "/suplex";
 
         public SuplexSecurityHttpApiClient(string baseUrl, string messageFormatType = "application/json") : base( baseUrl, messageFormatType )
         {
@@ -49,124 +49,260 @@ namespace Suplex.Security.WebApi
 
         public List<User> GetUserByName(string name, bool exact = false)
         {
-            throw new NotImplementedException();
+            return GetUserByNameAsync( name, exact ).Result;
+        }
+
+        public async Task<List<User>> GetUserByNameAsync(string name, bool exact = false)
+        {
+            string requestUri = $"{_rootPath}/users/?{nameof( name )}={name}&{nameof( exact )}={exact}";
+            return await GetAsync<List<User>>( requestUri );
         }
 
         public User UpsertUser(User user)
         {
-            throw new NotImplementedException();
+            return UpsertUserAsync( user ).Result;
+        }
+
+        public async Task<User> UpsertUserAsync(User user)
+        {
+            string requestUri = $"users/";
+            return await PostAsync<User>( user, requestUri );
         }
 
         public void DeleteUser(Guid userUId)
         {
-            throw new NotImplementedException();
+            DeleteUserAsync( userUId ).Wait();
+        }
+
+        public async Task DeleteUserAsync(Guid userUId)
+        {
+            string requestUri = $"users/{userUId}/";
+            await DeleteAsync( requestUri );
         }
 
 
 
         public Group GetGroupByUId(Guid groupUId)
         {
-            throw new NotImplementedException();
+            return GetGroupByUIdAsync( groupUId ).Result;
+        }
+
+        public async Task<Group> GetGroupByUIdAsync(Guid groupUId)
+        {
+            string requestUri = $"{_rootPath}/groups/{groupUId}";
+            return await GetAsync<Group>( requestUri );
         }
 
         public List<Group> GetGroupByName(string name, bool exact = false)
         {
-            throw new NotImplementedException();
+            return GetGroupByNameAsync( name, exact ).Result;
+        }
+
+        public async Task<List<Group>> GetGroupByNameAsync(string name, bool exact = false)
+        {
+            string requestUri = $"{_rootPath}/groups/?{nameof( name )}={name}&{nameof( exact )}={exact}";
+            return await GetAsync<List<Group>>( requestUri );
         }
 
         public Group UpsertGroup(Group group)
         {
-            throw new NotImplementedException();
+            return UpsertGroupAsync( group ).Result;
         }
 
-        public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
+        public async Task<Group> UpsertGroupAsync(Group group)
         {
-            throw new NotImplementedException();
+            string requestUri = $"groups/";
+            return await PostAsync<Group>( group, requestUri );
         }
 
         public void DeleteGroup(Guid groupUId)
         {
-            throw new NotImplementedException();
+            DeleteGroupAsync( groupUId ).Wait();
+        }
+
+        public async Task DeleteGroupAsync(Guid groupUId)
+        {
+            string requestUri = $"groups/{groupUId}/";
+            await DeleteAsync( requestUri );
         }
 
 
 
         public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMembersAsync( groupUId, includeDisabledMembership ).Result;
+        }
+
+        public async Task<IEnumerable<GroupMembershipItem>> GetGroupMembersAsync(Guid groupUId, bool includeDisabledMembership = false)
+        {
+            string requestUri = $"{_rootPath}/gm/{groupUId}/members/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
+            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri );
         }
 
         public IEnumerable<GroupMembershipItem> GetGroupMemberOf(Guid memberUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMemberOfAsync( memberUId, includeDisabledMembership ).Result;
+        }
+
+        public async Task<IEnumerable<GroupMembershipItem>> GetGroupMemberOfAsync(Guid memberUId, bool includeDisabledMembership = false)
+        {
+            string requestUri = $"{_rootPath}/gm/{memberUId}/memberof/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
+            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri );
         }
 
         public IEnumerable<GroupMembershipItem> GetGroupMembershipHierarchy(Guid memberUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMembershipHierarchyAsync( memberUId, includeDisabledMembership ).Result;
+        }
+
+        public async Task<IEnumerable<GroupMembershipItem>> GetGroupMembershipHierarchyAsync(Guid memberUId, bool includeDisabledMembership = false)
+        {
+            string requestUri = $"{_rootPath}/gm/{memberUId}/hier/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
+            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri );
         }
 
         public GroupMembershipItem UpsertGroupMembership(GroupMembershipItem groupMembershipItem)
         {
-            throw new NotImplementedException();
+            return UpsertGroupMembershipAsync( groupMembershipItem ).Result;
+        }
+
+        public async Task<GroupMembershipItem> UpsertGroupMembershipAsync(GroupMembershipItem groupMembershipItem)
+        {
+            string requestUri = $"gm/";
+            return await PostAsync<GroupMembershipItem>( groupMembershipItem, requestUri );
         }
 
         public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
         {
-            throw new NotImplementedException();
+            return UpsertGroupMembershipAsync( groupMembershipItems ).Result;
+        }
+
+        public async Task<List<GroupMembershipItem>> UpsertGroupMembershipAsync(List<GroupMembershipItem> groupMembershipItems)
+        {
+            string requestUri = $"gm/items/";
+            return await PostAsync<List<GroupMembershipItem>>( groupMembershipItems, requestUri );
         }
 
         public void DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
         {
-            throw new NotImplementedException();
+            DeleteGroupMembershipAsync( groupMembershipItem ).Wait();
+        }
+
+        public async Task DeleteGroupMembershipAsync(GroupMembershipItem groupMembershipItem)
+        {
+            string requestUri = $"gm/{groupMembershipItem.GroupUId}/?memberUId={groupMembershipItem.MemberUId}";
+            await DeleteAsync( requestUri );
         }
 
 
         public MembershipList<SecurityPrincipalBase> GetGroupMembersList(Guid groupUId, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMembersListAsync( groupUId, includeDisabledMembership ).Result;
+        }
+
+        public async Task<MembershipList<SecurityPrincipalBase>> GetGroupMembersListAsync(Guid groupUId, bool includeDisabledMembership = false)
+        {
+            string requestUri = $"{_rootPath}/gm/ml/{groupUId}/members/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
+            return await GetAsync<MembershipList<SecurityPrincipalBase>>( requestUri );
         }
 
         public MembershipList<SecurityPrincipalBase> GetGroupMembersList(Group group, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMembersListAsync( group.UId, includeDisabledMembership ).Result;
+        }
+
+        public async Task<MembershipList<SecurityPrincipalBase>> GetGroupMembersListAsync(Group group, bool includeDisabledMembership = false)
+        {
+            return await GetGroupMembersListAsync( group.UId, includeDisabledMembership );
         }
 
         public MembershipList<Group> GetGroupMemberOfList(Guid memberUId, bool isMemberGroup = false, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMemberOfListAsync( memberUId, isMemberGroup, includeDisabledMembership ).Result;
+        }
+
+        public async Task<MembershipList<Group>> GetGroupMemberOfListAsync(Guid memberUId, bool isMemberGroup = false, bool includeDisabledMembership = false)
+        {
+            string requestUri = $"{_rootPath}/gm/ml/{memberUId}/memberof/?{nameof( isMemberGroup )}={isMemberGroup}&{nameof( includeDisabledMembership )}={includeDisabledMembership}";
+            return await GetAsync<MembershipList<Group>>( requestUri );
         }
 
         public MembershipList<Group> GetGroupMemberOfList(SecurityPrincipalBase member, bool includeDisabledMembership = false)
         {
-            throw new NotImplementedException();
+            return GetGroupMemberOfListAsync( member.UId, member is Group, includeDisabledMembership ).Result;
+        }
+
+        public async Task<MembershipList<Group>> GetGroupMemberOfListAsync(SecurityPrincipalBase member, bool includeDisabledMembership = false)
+        {
+            return await GetGroupMemberOfListAsync( member.UId, member is Group, includeDisabledMembership );
         }
 
 
 
         public IEnumerable<ISecureObject> GetSecureObjects()
         {
-            throw new NotImplementedException();
+            return GetSecureObjectsAsync().Result;
+        }
+
+        public async Task<IEnumerable<ISecureObject>> GetSecureObjectsAsync()
+        {
+            string requestUri = $"{_rootPath}/so/all/";
+            return await GetAsync<IEnumerable<ISecureObject>>( requestUri );
         }
 
         public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
         {
-            throw new NotImplementedException();
+            return GetSecureObjectByUIdAsync( secureObjectUId, includeChildren, includeDisabled ).Result;
+        }
+
+        public async Task<ISecureObject> GetSecureObjectByUIdAsync(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        {
+            string requestUri = $"{_rootPath}/so/{secureObjectUId}/?{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
+            return await GetAsync<ISecureObject>( requestUri );
         }
 
         public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
         {
-            throw new NotImplementedException();
+            return GetSecureObjectByUniqueNameAsync( uniqueName, includeChildren, includeDisabled ).Result;
+        }
+
+        public async Task<ISecureObject> GetSecureObjectByUniqueNameAsync(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        {
+            string requestUri = $"{_rootPath}/so/?{nameof( uniqueName )}={uniqueName}&{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
+            return await GetAsync<ISecureObject>( requestUri );
         }
 
         public ISecureObject UpsertSecureObject(ISecureObject secureObject)
         {
-            throw new NotImplementedException();
+            return UpsertSecureObjectAsync( secureObject ).Result;
+        }
+
+        public async Task<ISecureObject> UpsertSecureObjectAsync(ISecureObject secureObject)
+        {
+            string requestUri = $"so/";
+            return await PostAsync<ISecureObject>( secureObject, requestUri );
+        }
+
+        public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
+        {
+            UpdateSecureObjectParentUIdAsync( secureObject, newParentUId ).Wait();
+        }
+
+        public async Task UpdateSecureObjectParentUIdAsync(ISecureObject secureObject, Guid? newParentUId)
+        {
+            string requestUri = $"so/{newParentUId}/";
+            await PutAsync( secureObject, requestUri );
         }
 
         public void DeleteSecureObject(Guid secureObjectUId)
         {
-            throw new NotImplementedException();
+            DeleteSecureObjectAsync(secureObjectUId).Wait();
+        }
+
+        public async Task DeleteSecureObjectAsync(Guid secureObjectUId)
+        {
+            string requestUri = $"so/{secureObjectUId}/";
+            await DeleteAsync( requestUri );
         }
     }
 }
