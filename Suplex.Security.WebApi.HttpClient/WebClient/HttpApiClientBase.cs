@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -133,6 +133,29 @@ namespace Suplex.Security.WebApi
                 if( !response.IsSuccessStatusCode )
                     throw this.GetException( response );
                 obj = await response.Content.ReadAsAsync<T>().ConfigureAwait( false );
+            }
+            catch( WebApiClientException ex )
+            {
+                throw ex;
+            }
+            catch( Exception ex )
+            {
+                throw new WebApiClientException( HttpStatusCode.InternalServerError, ex );
+            }
+            return obj;
+        }
+
+        protected virtual async Task<T> GetAsync<T>(string requestUri, params JsonConverter[] converters)
+        {
+            T obj;
+            try
+            {
+                this.Authenticate(); // Placeholder in case we need to specify authentication header
+                HttpResponseMessage response = await this.Client.GetAsync( requestUri ).ConfigureAwait( false );
+                if( !response.IsSuccessStatusCode )
+                    throw this.GetException( response );
+                object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
+                obj = JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
             }
             catch( WebApiClientException ex )
             {

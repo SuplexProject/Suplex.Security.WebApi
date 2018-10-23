@@ -67,6 +67,8 @@
     <Compile Include="SuplexController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SuplexWebApiConfig.cs" />
+    <Compile Include="Utilities\JsonAceConverter.cs" />
+    <Compile Include="Utilities\YamlAceConverter.cs" />
     <Compile Include="Utilities\YamlHelpers.cs" />
   </ItemGroup>
   <ItemGroup>

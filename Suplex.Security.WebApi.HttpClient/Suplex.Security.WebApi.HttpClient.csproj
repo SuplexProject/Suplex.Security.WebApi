@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="SuplexSecurityHttpApiClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\JsonAceConverter.cs" />
     <Compile Include="WebClient\BasicAuthentication.cs" />
     <Compile Include="WebClient\HttpApiClientBase.cs" />
     <Compile Include="WebClient\IAuthentication.cs" />

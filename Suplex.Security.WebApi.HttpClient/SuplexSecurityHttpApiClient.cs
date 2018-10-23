@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Suplex.Security.AclModel;
 using Suplex.Security.DataAccess;
 using Suplex.Security.Principal;
+using Suplex.Utilities.Serialization;
 
+using Newtonsoft.Json;
 
 namespace Suplex.Security.WebApi
 {
@@ -13,6 +15,13 @@ namespace Suplex.Security.WebApi
     {
         static void Main(string[] args)
         {
+            string pace = " {\r\n      \"UId\": \"5595682b-1045-4114-af8b-090307242578\",\r\n      \"RightType\": \"Suplex.Security.AclModel.FileSystemRight, Suplex.Security.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\r\n      \"Right\": \"TakeOwnership\",\r\n      \"Allowed\": true,\r\n      \"Inheritable\": true,\r\n      \"InheritedFrom\": \"9570128e-fba8-4455-b328-f30af56eabef\",\r\n      \"TrusteeUId\": \"d8adefb2-a142-4397-82b3-9b0d9df37d08\"\r\n    }";
+            string aace = "{\r\n  \"UId\": \"3ac08eaa-700a-4ab4-9a90-1659db9ea25d\",\r\n  \"RightType\": \"Suplex.Security.AclModel.RecordRight, Suplex.Security.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\r\n  \"Right\": \"List, Insert, Delete\",\r\n  \"Allowed\": true,\r\n  \"Denied\": false,\r\n  \"Inheritable\": true,\r\n  \"InheritedFrom\": \"9733efc2-1cde-415e-af79-ff2d74f5e69d\",\r\n  \"TrusteeUId\": \"d8adefb2-a142-4397-82b3-9b0d9df37d08\"\r\n}";
+            JsonAceConverter aceConverter = new JsonAceConverter();
+            IAccessControlEntry ace = JsonConvert.DeserializeObject<IAccessControlEntry>( aace, aceConverter );
+
+            string json = JsonConvert.SerializeObject( ace, aceConverter );
+
             SuplexSecurityHttpApiClient client = new SuplexSecurityHttpApiClient( "http://localhost:20000/suplex/" );
             List<User> users = client.GetUserByName( null );
         }
@@ -251,15 +260,21 @@ namespace Suplex.Security.WebApi
 
 
 
-        public IEnumerable<ISecureObject> GetSecureObjects()
+        public IEnumerable<SecureObject> GetSecureObjects()
         {
             return GetSecureObjectsAsync().Result;
         }
 
-        public async Task<IEnumerable<ISecureObject>> GetSecureObjectsAsync()
+        IEnumerable<ISecureObject> ISuplexDal.GetSecureObjects()
+        {
+            return GetSecureObjectsAsync().Result;
+        }
+
+        public async Task<IEnumerable<SecureObject>> GetSecureObjectsAsync()
         {
             string requestUri = $"{_rootPath}/so/all/";
-            return await GetAsync<IEnumerable<ISecureObject>>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            object foo = await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return foo as IEnumerable<SecureObject>;
         }
 
         public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
