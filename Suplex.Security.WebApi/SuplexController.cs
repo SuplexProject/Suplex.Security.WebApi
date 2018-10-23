@@ -27,6 +27,7 @@ namespace Suplex.Security.WebApi
         }
 
 
+        #region users
         [HttpGet]
         [Route( "users/{userUId:Guid}/" )]
         public User GetUserByUId(Guid userUId)
@@ -54,8 +55,10 @@ namespace Suplex.Security.WebApi
         {
             _dal.DeleteUser( userUId );
         }
+        #endregion
 
 
+        #region groups
         [HttpGet]
         [Route( "groups/{groupUId:Guid}" )]
         public Group GetGroupByUId(Guid groupUId)
@@ -83,8 +86,10 @@ namespace Suplex.Security.WebApi
         {
             _dal.DeleteGroup( groupUId );
         }
+        #endregion
 
 
+        #region gm
         [HttpGet]
         [Route( "gm/{groupUId:Guid}/members" )]
         public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
@@ -156,8 +161,10 @@ namespace Suplex.Security.WebApi
         {
             return _dal.GetGroupMemberOfList( member, includeDisabledMembership );
         }
+        #endregion
 
 
+        #region secure objects
         [HttpGet]
         [Route( "so/all/" )]
         public IEnumerable<ISecureObject> GetSecureObjects()
@@ -181,14 +188,22 @@ namespace Suplex.Security.WebApi
 
         [HttpPost]
         [Route( "so/" )]
-        public ISecureObject UpsertSecureObject([FromBody]ISecureObject secureObject)
+        public SecureObject UpsertSecureObject([FromBody]SecureObject secureObject)
+        {
+            return _dal.UpsertSecureObject( secureObject ) as SecureObject;
+        }
+        ISecureObject ISuplexDal.UpsertSecureObject([FromBody]ISecureObject secureObject)
         {
             return _dal.UpsertSecureObject( secureObject );
         }
 
         [HttpPut]
         [Route( "so/{newParentUId:Guid}" )]
-        public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
+        public void UpdateSecureObjectParentUId(SecureObject secureObject, Guid? newParentUId)
+        {
+            _dal.UpdateSecureObjectParentUId( secureObject, newParentUId );
+        }
+        void ISuplexDal.UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
         {
             _dal.UpdateSecureObjectParentUId( secureObject, newParentUId );
         }
@@ -199,5 +214,6 @@ namespace Suplex.Security.WebApi
         {
             _dal.DeleteSecureObject( secureObjectUId );
         }
+        #endregion
     }
 }

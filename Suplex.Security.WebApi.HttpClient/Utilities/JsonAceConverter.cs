@@ -24,12 +24,12 @@ namespace Suplex.Utilities.Serialization
                 props[prop.Name] = prop.Value.ToString();
 
             bool isAuditAce = typeof( IAccessControlEntryAudit ).IsAssignableFrom( type ) ||
-                props.ContainsKey( "Denied" );
+                props.ContainsKey( RightFields.Denied );
 
-            if( props.ContainsKey( "RightData" ) )
+            if( props.ContainsKey( RightFields.RightData ) )
             {
-                props[RightFields.RightType] = aceJson["RightData"].SelectToken( RightFields.RightType ).ToString();
-                props.Remove( "RightData" );
+                props.Remove( RightFields.RightData );
+                props[RightFields.RightType] = aceJson[RightFields.RightData].SelectToken( RightFields.RightType ).ToString();
             }
 
             if( props.ContainsKey( RightFields.RightType ) )

@@ -228,6 +228,40 @@ namespace Suplex.Security.WebApi
             }
         }
 
+        protected virtual async Task<T> PostAsync<T>(T obj, string requestUri, params JsonConverter[] converters)
+        {
+            try
+            {
+                this.Authenticate(); // Placeholder in case we need to specify authentication header
+
+                JObject json = JObject.Parse( JsonConvert.SerializeObject( obj, converters ) );
+                ObjectContent<JObject> content = new ObjectContent<JObject>( json, this.Options.Formatter );
+                await content.LoadIntoBufferAsync().ConfigureAwait( false );
+                HttpResponseMessage response =
+                    await this.Client.PostAsync( requestUri, (HttpContent)content ).ConfigureAwait( false );
+
+                if( !response.IsSuccessStatusCode )
+                    throw this.GetException( response );
+                try
+                {
+                    object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
+                    return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                }
+                catch
+                {
+                    return default( T );
+                }
+            }
+            catch( WebApiClientException ex )
+            {
+                throw ex;
+            }
+            catch( Exception ex )
+            {
+                throw new WebApiClientException( HttpStatusCode.InternalServerError, ex );
+            }
+        }
+
         protected virtual async Task<T1> PostAsync<T0, T1>(T0 obj, string requestUri)
         {
             try
@@ -265,7 +299,8 @@ namespace Suplex.Security.WebApi
                 this.Authenticate(); // Placeholder in case we need to specify authentication header
                 ObjectContent<T> content = new ObjectContent<T>( obj, this.Options.Formatter );
                 await content.LoadIntoBufferAsync().ConfigureAwait( false );
-                HttpResponseMessage response = await this.Client.PutAsync( requestUri, (HttpContent)content ).ConfigureAwait( false );
+                HttpResponseMessage response =
+                    await this.Client.PutAsync( requestUri, (HttpContent)content ).ConfigureAwait( false );
                 if( !response.IsSuccessStatusCode )
                     throw this.GetException( response );
                 try
@@ -287,6 +322,39 @@ namespace Suplex.Security.WebApi
             }
         }
 
+        protected virtual async Task<T> PutAsync<T>(T obj, string requestUri, params JsonConverter[] converters)
+        {
+            try
+            {
+                this.Authenticate(); // Placeholder in case we need to specify authentication header
+
+                JObject json = JObject.Parse( JsonConvert.SerializeObject( obj, converters ) );
+                ObjectContent<JObject> content = new ObjectContent<JObject>( json, this.Options.Formatter );
+                await content.LoadIntoBufferAsync().ConfigureAwait( false );
+                HttpResponseMessage response =
+                    await this.Client.PutAsync( requestUri, (HttpContent)content ).ConfigureAwait( false );
+
+                if( !response.IsSuccessStatusCode )
+                    throw this.GetException( response );
+                try
+                {
+                    object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
+                    return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                }
+                catch
+                {
+                    return default( T );
+                }
+            }
+            catch( WebApiClientException ex )
+            {
+                throw ex;
+            }
+            catch( Exception ex )
+            {
+                throw new WebApiClientException( HttpStatusCode.InternalServerError, ex );
+            }
+        }
         #endregion
     }
 }

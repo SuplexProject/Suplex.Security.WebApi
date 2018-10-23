@@ -273,8 +273,7 @@ namespace Suplex.Security.WebApi
         public async Task<IEnumerable<SecureObject>> GetSecureObjectsAsync()
         {
             string requestUri = $"{_rootPath}/so/all/";
-            object foo = await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
-            return foo as IEnumerable<SecureObject>;
+            return await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
@@ -285,7 +284,7 @@ namespace Suplex.Security.WebApi
         public async Task<ISecureObject> GetSecureObjectByUIdAsync(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
         {
             string requestUri = $"{_rootPath}/so/{secureObjectUId}/?{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<ISecureObject>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<ISecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
@@ -296,7 +295,7 @@ namespace Suplex.Security.WebApi
         public async Task<ISecureObject> GetSecureObjectByUniqueNameAsync(string uniqueName, bool includeChildren, bool includeDisabled = false)
         {
             string requestUri = $"{_rootPath}/so/?{nameof( uniqueName )}={uniqueName}&{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<ISecureObject>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<ISecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public ISecureObject UpsertSecureObject(ISecureObject secureObject)
@@ -307,7 +306,7 @@ namespace Suplex.Security.WebApi
         public async Task<ISecureObject> UpsertSecureObjectAsync(ISecureObject secureObject)
         {
             string requestUri = $"so/";
-            return await PostAsync<ISecureObject>( secureObject, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await PostAsync<ISecureObject>( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
@@ -318,7 +317,7 @@ namespace Suplex.Security.WebApi
         public async Task UpdateSecureObjectParentUIdAsync(ISecureObject secureObject, Guid? newParentUId)
         {
             string requestUri = $"so/{newParentUId}/";
-            await PutAsync( secureObject, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            await PutAsync( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void DeleteSecureObject(Guid secureObjectUId)
