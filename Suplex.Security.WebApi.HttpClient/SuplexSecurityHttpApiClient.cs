@@ -36,6 +36,8 @@ namespace Suplex.Security.WebApi
         public SuplexSecurityHttpApiClient(string baseUrl, string messageFormatType = "application/json", bool configureAwaitContinueOnCapturedContext = true) : base( baseUrl, messageFormatType )
         {
             _configureAwaitContinueOnCapturedContext = configureAwaitContinueOnCapturedContext;
+            Uri uri = new Uri( baseUrl );
+            _rootPath = uri.AbsolutePath.TrimEnd( '/' );
         }
 
 
@@ -148,6 +150,17 @@ namespace Suplex.Security.WebApi
         }
 
 
+
+        public IEnumerable<GroupMembershipItem> GetGroupMembership()
+        {
+            return GetGroupMembershipAsync().Result;
+        }
+
+        public async Task<IEnumerable<GroupMembershipItem>> GetGroupMembershipAsync()
+        {
+            string requestUri = $"{_rootPath}/gm/";
+            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
 
         public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
         {
@@ -305,7 +318,7 @@ namespace Suplex.Security.WebApi
 
         public async Task<ISecureObject> UpsertSecureObjectAsync(ISecureObject secureObject)
         {
-            string requestUri = $"so/";
+            string requestUri = $"{_rootPath}/so/";
             return await PostAsync<ISecureObject>( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
@@ -316,7 +329,7 @@ namespace Suplex.Security.WebApi
 
         public async Task UpdateSecureObjectParentUIdAsync(ISecureObject secureObject, Guid? newParentUId)
         {
-            string requestUri = $"so/{newParentUId}/";
+            string requestUri = $"{_rootPath}/so/{newParentUId}/";
             await PutAsync( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
@@ -327,7 +340,7 @@ namespace Suplex.Security.WebApi
 
         public async Task DeleteSecureObjectAsync(Guid secureObjectUId)
         {
-            string requestUri = $"so/{secureObjectUId}/";
+            string requestUri = $"{_rootPath}/so/{secureObjectUId}/";
             await DeleteAsync( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
     }

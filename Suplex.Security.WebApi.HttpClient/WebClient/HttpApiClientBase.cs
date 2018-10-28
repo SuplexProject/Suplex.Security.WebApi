@@ -155,7 +155,10 @@ namespace Suplex.Security.WebApi
                 if( !response.IsSuccessStatusCode )
                     throw this.GetException( response );
                 object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
-                obj = JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                if( jsonObject != null )
+                    obj = JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                else
+                    obj = default( T );
             }
             catch( WebApiClientException ex )
             {
@@ -245,7 +248,10 @@ namespace Suplex.Security.WebApi
                 try
                 {
                     object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
-                    return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                    if( jsonObject != null )
+                        return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                    else
+                        return default( T );
                 }
                 catch
                 {
@@ -339,7 +345,10 @@ namespace Suplex.Security.WebApi
                 try
                 {
                     object jsonObject = await response.Content.ReadAsAsync<object>().ConfigureAwait( false );
-                    return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                    if( jsonObject != null )
+                        return JsonConvert.DeserializeObject<T>( jsonObject.ToString(), converters );
+                    else
+                        return default( T );
                 }
                 catch
                 {

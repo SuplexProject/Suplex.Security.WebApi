@@ -91,6 +91,13 @@ namespace Suplex.Security.WebApi
 
         #region gm
         [HttpGet]
+        [Route( "gm/" )]
+        public IEnumerable<GroupMembershipItem> GetGroupMembership()
+        {
+            return _dal.GetGroupMembership();
+        }
+
+        [HttpGet]
         [Route( "gm/{groupUId:Guid}/members" )]
         public IEnumerable<GroupMembershipItem> GetGroupMembers(Guid groupUId, bool includeDisabledMembership = false)
         {
