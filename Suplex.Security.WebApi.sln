@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Suplex.Security.WebApi", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Suplex.Security.WebApi.HttpClient", "Suplex.Security.WebApi.HttpClient\Suplex.Security.WebApi.HttpClient.csproj", "{2E9C6570-2914-46CD-9985-3D71A61168BA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{12744EF5-38C7-48F1-8C38-002E1D192E42}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\AssemblyInfo.xml = scripts\AssemblyInfo.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
