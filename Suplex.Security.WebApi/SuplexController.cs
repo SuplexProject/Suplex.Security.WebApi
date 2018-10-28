@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Web.Http;
+
 using Suplex.Security.AclModel;
 using Suplex.Security.DataAccess;
 using Suplex.Security.Principal;
@@ -14,9 +16,20 @@ namespace Suplex.Security.WebApi
 
         public SuplexController()
         {
+            string configFileName = "Suplex.Security.WebApi.config.yaml";
+
             object config = Synapse.Services.ExtensibilityUtility.GetExecuteControllerInstance( null, null, null )?.GetCustomAssemblyConfig( "Suplex.Security.WebApi" );
-            SuplexDalConfig suplexDalConfig = SuplexDalConfig.FromObject( config );
-            _dal = suplexDalConfig.GetDalInstance();
+            if( config != null )
+            {
+                SuplexDalConfig suplexDalConfig = SuplexDalConfig.FromObject( config );
+                _dal = suplexDalConfig.GetDalInstance();
+            }
+            else if( File.Exists( configFileName ) )
+            {
+                string configYaml = File.ReadAllText( configFileName );
+                SuplexDalConfig suplexDalConfig = SuplexDalConfig.FromYaml( configYaml );
+                _dal = suplexDalConfig.GetDalInstance();
+            }
         }
 
         [HttpGet]
