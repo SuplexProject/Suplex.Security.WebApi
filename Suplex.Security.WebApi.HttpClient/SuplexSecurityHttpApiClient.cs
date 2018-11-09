@@ -23,10 +23,20 @@ namespace Suplex.Security.WebApi
             string json = JsonConvert.SerializeObject( ace, aceConverter );
 
             SuplexSecurityHttpApiClient client = new SuplexSecurityHttpApiClient( "http://localhost:20000/suplex/" );
-            List<User> users = client.GetUserByName( null );
+            // test secure object
+            SecureObject so = client.GetSecureObjectByUniqueName( "New Root1", includeChildren: false, includeDisabled: true );
+            Console.WriteLine( $"Original Parent {so.ParentUId}" );
+            SecureObject soDest = client.GetSecureObjectByUniqueName( "top.edited", includeChildren: false, includeDisabled: true );
+
+            //client.UpdateSecureObjectParentUId( so, soDest.UId );
+            //client.UpdateSecureObjectParentUId( so, null );
+            //client.UpdateSecureObjectParentUId( so.UId, soDest.UId );
+            client.UpdateSecureObjectParentUId( so.UId, null );
+            SecureObject found = client.GetSecureObjectByUniqueName("New Root1", includeChildren: false, includeDisabled: true );
+            Console.WriteLine( $"After update Parent {found.ParentUId}" );
+            Console.WriteLine( "pause" );
         }
     }
-
 
     public class SuplexSecurityHttpApiClient : HttpApiClientBase, ISuplexDal
     {
@@ -192,7 +202,7 @@ namespace Suplex.Security.WebApi
         public async Task<IEnumerable<GroupMembershipItem>> GetGroupMembershipHierarchyAsync(Guid memberUId, bool includeDisabledMembership = false)
         {
             string requestUri = $"{_rootPath}/gm/{memberUId}/hier/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
-            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<IEnumerable<GroupMembershipItem>>( requestUri, new JsonSecurityPrincipalBaseConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public GroupMembershipItem UpsertGroupMembership(GroupMembershipItem groupMembershipItem)
@@ -206,15 +216,15 @@ namespace Suplex.Security.WebApi
             return await PostAsync<GroupMembershipItem>( groupMembershipItem, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
-        public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
+        public IEnumerable<GroupMembershipItem> UpsertGroupMembership(IEnumerable<GroupMembershipItem> groupMembershipItems)
         {
             return UpsertGroupMembershipAsync( groupMembershipItems ).Result;
         }
 
-        public async Task<List<GroupMembershipItem>> UpsertGroupMembershipAsync(List<GroupMembershipItem> groupMembershipItems)
+        public async Task<IEnumerable<GroupMembershipItem>> UpsertGroupMembershipAsync(IEnumerable<GroupMembershipItem> groupMembershipItems)
         {
             string requestUri = $"gm/items/";
-            return await PostAsync<List<GroupMembershipItem>>( groupMembershipItems, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await PostAsync<IEnumerable<GroupMembershipItem>>( groupMembershipItems, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void DeleteGroupMembership(GroupMembershipItem groupMembershipItem)
@@ -228,6 +238,17 @@ namespace Suplex.Security.WebApi
             await DeleteAsync( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
+        public void DeleteGroupMembership(IEnumerable<GroupMembershipItem> groupMembershipItems)
+        {
+            DeleteGroupMembershipAsync( groupMembershipItems ).Wait();
+        }
+
+        public async Task DeleteGroupMembershipAsync(IEnumerable<GroupMembershipItem> groupMembershipItems)
+        {
+            //string requestUri = $"gm/{groupMembershipItem.GroupUId}/?memberUId={groupMembershipItem.MemberUId}";
+            string requestUri = $"gm/items";
+            await DeleteAsync( groupMembershipItems, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
 
         public MembershipList<SecurityPrincipalBase> GetGroupMembersList(Guid groupUId, bool includeDisabledMembership = false)
         {
@@ -237,7 +258,8 @@ namespace Suplex.Security.WebApi
         public async Task<MembershipList<SecurityPrincipalBase>> GetGroupMembersListAsync(Guid groupUId, bool includeDisabledMembership = false)
         {
             string requestUri = $"{_rootPath}/gm/ml/{groupUId}/members/?{nameof( includeDisabledMembership )}={includeDisabledMembership}";
-            return await GetAsync<MembershipList<SecurityPrincipalBase>>( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+
+            return await GetAsync<MembershipList<SecurityPrincipalBase>>( requestUri, new JsonSecurityPrincipalBaseConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public MembershipList<SecurityPrincipalBase> GetGroupMembersList(Group group, bool includeDisabledMembership = false)
@@ -289,37 +311,52 @@ namespace Suplex.Security.WebApi
             return await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
-        public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        public SecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
         {
             return GetSecureObjectByUIdAsync( secureObjectUId, includeChildren, includeDisabled ).Result;
         }
 
-        public async Task<ISecureObject> GetSecureObjectByUIdAsync(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        ISecureObject ISuplexDal.GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled)
         {
-            string requestUri = $"{_rootPath}/so/{secureObjectUId}/?{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<ISecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return GetSecureObjectByUIdAsync( secureObjectUId, includeChildren, includeDisabled ).Result;
         }
 
-        public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        public async Task<SecureObject> GetSecureObjectByUIdAsync(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        {
+            string requestUri = $"{_rootPath}/so/{secureObjectUId}/?{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
+            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
+
+        public SecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
         {
             return GetSecureObjectByUniqueNameAsync( uniqueName, includeChildren, includeDisabled ).Result;
         }
 
-        public async Task<ISecureObject> GetSecureObjectByUniqueNameAsync(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        ISecureObject ISuplexDal.GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled)
         {
-            string requestUri = $"{_rootPath}/so/?{nameof( uniqueName )}={uniqueName}&{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<ISecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return GetSecureObjectByUniqueNameAsync( uniqueName, includeChildren, includeDisabled ).Result;
         }
 
-        public ISecureObject UpsertSecureObject(ISecureObject secureObject)
+        public async Task<SecureObject> GetSecureObjectByUniqueNameAsync(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        {
+            string requestUri = $"{_rootPath}/so/?{nameof( uniqueName )}={uniqueName}&{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
+            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
+
+        public SecureObject UpsertSecureObject(SecureObject secureObject)
         {
             return UpsertSecureObjectAsync( secureObject ).Result;
         }
 
-        public async Task<ISecureObject> UpsertSecureObjectAsync(ISecureObject secureObject)
+        ISecureObject ISuplexDal.UpsertSecureObject(ISecureObject secureObject)
+        {
+            return UpsertSecureObjectAsync( secureObject as SecureObject ).Result;
+        }
+
+        public async Task<SecureObject> UpsertSecureObjectAsync(SecureObject secureObject)
         {
             string requestUri = $"{_rootPath}/so/";
-            return await PostAsync<ISecureObject>( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await PostAsync<SecureObject>( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
@@ -329,8 +366,20 @@ namespace Suplex.Security.WebApi
 
         public async Task UpdateSecureObjectParentUIdAsync(ISecureObject secureObject, Guid? newParentUId)
         {
+            
             string requestUri = $"{_rootPath}/so/{newParentUId}/";
             await PutAsync( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
+
+        public void UpdateSecureObjectParentUId(Guid secureObjectUId, Guid? newParentUId)
+        {
+            UpdateSecureObjectParentUIdAsync( secureObjectUId, newParentUId ).Wait();
+        }
+
+        public async Task UpdateSecureObjectParentUIdAsync(Guid secureObjectUId, Guid? newParentUId)
+        {
+            string requestUri = $"{_rootPath}/so/uid/{secureObjectUId}/{newParentUId}/";
+            await PutAsync( null as Object, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void DeleteSecureObject(Guid secureObjectUId)

@@ -102,6 +102,32 @@ namespace Suplex.Security.WebApi
             }
         }
 
+        protected virtual async Task DeleteAsync<T>(T obj, string requestUri)
+        {
+            try
+            {
+                this.Authenticate(); // Placeholder in case we need to specify authentication header
+                ObjectContent<T> content = new ObjectContent<T>( obj, this.Options.Formatter );
+                await content.LoadIntoBufferAsync().ConfigureAwait( false );
+                var request = new HttpRequestMessage( HttpMethod.Delete, requestUri );
+                request.Content = (HttpContent)content;
+                HttpResponseMessage response =
+                    //await this.Client.DeleteAsync( requestUri, (HttpContent)content ).ConfigureAwait( false );
+                    await this.Client.SendAsync( request ).ConfigureAwait( false );
+
+                if( !response.IsSuccessStatusCode )
+                    throw this.GetException( response );
+            }
+            catch( WebApiClientException ex )
+            {
+                throw ex;
+            }
+            catch( Exception ex )
+            {
+                throw new WebApiClientException( HttpStatusCode.InternalServerError, ex );
+            }
+        }
+
         protected virtual async Task GetAsync(string requestUri)
         {
             object obj;
