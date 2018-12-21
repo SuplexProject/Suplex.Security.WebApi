@@ -343,5 +343,27 @@ namespace Suplex.Security.WebApi
             string requestUri = $"{_rootPath}/so/{secureObjectUId}/";
             await DeleteAsync( requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
+
+        public ISecureObject EvalSecureObjectSecurity(string uniqueName, string userName, IEnumerable<string> externalGroupMembership = null)
+        {
+            return EvalSecureObjectSecurityAsync( uniqueName, userName, externalGroupMembership ).Result;
+        }
+
+        public async Task<ISecureObject> EvalSecureObjectSecurityAsync(string uniqueName, string userName, IEnumerable<string> externalGroupMembership = null)
+        {
+            string requestUri = $"{_rootPath}/so/so/eval/{uniqueName}/{userName}";
+            return await PostAsync<IEnumerable<string>,ISecureObject>( externalGroupMembership, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
+
+        public ISecureObject EvalSecureObjectSecurity(Guid secureObjectUId, Guid userUId, IEnumerable<string> externalGroupMembership = null)
+        {
+            return EvalSecureObjectSecurityAsync( secureObjectUId, userUId, externalGroupMembership ).Result;
+        }
+
+        public async Task<ISecureObject> EvalSecureObjectSecurityAsync(Guid secureObjectUId, Guid userUId, IEnumerable<string> externalGroupMembership = null)
+        {
+            string requestUri = $"{_rootPath}/so/so/eval/{secureObjectUId}/{secureObjectUId}";
+            return await PostAsync<IEnumerable<string>, ISecureObject>( externalGroupMembership, requestUri ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+        }
     }
 }

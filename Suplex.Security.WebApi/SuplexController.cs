@@ -234,6 +234,24 @@ namespace Suplex.Security.WebApi
         {
             _dal.DeleteSecureObject( secureObjectUId );
         }
+
+
+        [HttpPost]
+        [Route( "so/eval/{uniqueName}/{userName}" )]
+        public ISecureObject EvalSecureObjectSecurity(string uniqueName, string userName, IEnumerable<string> externalGroupMembership)
+        {
+            if( Guid.TryParse( uniqueName, out Guid secureObjectUId ) && Guid.TryParse( userName, out Guid userUId ) )
+                return _dal.EvalSecureObjectSecurity( secureObjectUId, userUId, externalGroupMembership );
+            else
+                return _dal.EvalSecureObjectSecurity( uniqueName, userName, externalGroupMembership );
+        }
+
+        [HttpPost]
+        [Route( "so/eval/{secureObjectUId:Guid}/{userUId:Guid}" )]
+        public ISecureObject EvalSecureObjectSecurity(Guid secureObjectUId, Guid userUId, IEnumerable<string> externalGroupMembership)
+        {
+            return _dal.EvalSecureObjectSecurity( secureObjectUId, userUId, externalGroupMembership );
+        }
         #endregion
     }
 }
