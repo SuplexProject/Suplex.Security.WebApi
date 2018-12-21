@@ -140,7 +140,7 @@ namespace Suplex.Security.WebApi
 
         [HttpPost]
         [Route( "gm/items/" )]
-        public List<GroupMembershipItem> UpsertGroupMembership(List<GroupMembershipItem> groupMembershipItems)
+        public IEnumerable<GroupMembershipItem> UpsertGroupMembership(IEnumerable<GroupMembershipItem> groupMembershipItems)
         {
             return _dal.UpsertGroupMembership( groupMembershipItems );
         }
@@ -156,6 +156,16 @@ namespace Suplex.Security.WebApi
             _dal.DeleteGroupMembership( groupMembershipItem );
         }
 
+        [HttpDelete]
+        [Route( "gm/items" )]
+        public void DeleteGroupMembership(IEnumerable<GroupMembershipItem> groupMembershipItems)
+        {
+            _dal.DeleteGroupMembership( groupMembershipItems );
+        }
+        void ISuplexDal.DeleteGroupMembership(IEnumerable<GroupMembershipItem> groupMembershipItems)
+        {
+            _dal.DeleteGroupMembership( groupMembershipItems );
+        }
 
         [HttpGet]
         [Route( "gm/ml/{groupUId:Guid}/members" )]
@@ -194,18 +204,25 @@ namespace Suplex.Security.WebApi
 
         [HttpGet]
         [Route( "so/{secureObjectUId:Guid}" )]
-        public ISecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        public SecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
+        {
+            return _dal.GetSecureObjectByUId( secureObjectUId, includeChildren, includeDisabled ) as SecureObject;
+        }
+        ISecureObject ISuplexDal.GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled)
         {
             return _dal.GetSecureObjectByUId( secureObjectUId, includeChildren, includeDisabled );
         }
 
         [HttpGet]
         [Route( "so/" )]
-        public ISecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
+        public SecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
         {
-            return _dal.GetSecureObjectByUniqueName( uniqueName, includeChildren, includeDisabled );
+            return _dal.GetSecureObjectByUniqueName( uniqueName, includeChildren, includeDisabled ) as SecureObject;
         }
-
+        ISecureObject ISuplexDal.GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled)
+        {
+            return _dal.GetSecureObjectByUniqueName(uniqueName, includeChildren, includeDisabled);
+        }
         [HttpPost]
         [Route( "so/" )]
         public SecureObject UpsertSecureObject([FromBody]SecureObject secureObject)
@@ -218,14 +235,25 @@ namespace Suplex.Security.WebApi
         }
 
         [HttpPut]
-        [Route( "so/{newParentUId:Guid}" )]
-        public void UpdateSecureObjectParentUId(SecureObject secureObject, Guid? newParentUId)
+        [Route( "so/{newParentUId:Guid?}" )]
+        public void UpdateSecureObjectParentUId([FromBody]SecureObject secureObject, Guid? newParentUId = null)
         {
             _dal.UpdateSecureObjectParentUId( secureObject, newParentUId );
         }
         void ISuplexDal.UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
         {
             _dal.UpdateSecureObjectParentUId( secureObject, newParentUId );
+        }
+
+        [HttpPut]
+        [Route( "so/uid/{secureObjectUId:Guid}/{newParentUId:Guid?}" )]
+        public void UpdateSecureObjectParentUId(Guid secureObjectUId, Guid? newParentUId = null)
+        {
+            _dal.UpdateSecureObjectParentUId( secureObjectUId, newParentUId );
+        }
+        void ISuplexDal.UpdateSecureObjectParentUId(Guid secureObjectUId, Guid? newParentUId)
+        {
+            _dal.UpdateSecureObjectParentUId( secureObjectUId, newParentUId );
         }
 
         [HttpDelete]
