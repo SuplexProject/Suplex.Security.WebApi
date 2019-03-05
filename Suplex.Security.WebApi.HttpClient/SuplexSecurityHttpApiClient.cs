@@ -6,7 +6,6 @@ using Suplex.Security.AclModel;
 using Suplex.Security.DataAccess;
 using Suplex.Security.Principal;
 using Suplex.Utilities.Serialization;
-
 using Newtonsoft.Json;
 
 namespace Suplex.Security.WebApi
@@ -19,8 +18,16 @@ namespace Suplex.Security.WebApi
             string aace = "{\r\n  \"UId\": \"3ac08eaa-700a-4ab4-9a90-1659db9ea25d\",\r\n  \"RightType\": \"Suplex.Security.AclModel.RecordRight, Suplex.Security.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\r\n  \"Right\": \"List, Insert, Delete\",\r\n  \"Allowed\": true,\r\n  \"Denied\": false,\r\n  \"Inheritable\": true,\r\n  \"InheritedFrom\": \"9733efc2-1cde-415e-af79-ff2d74f5e69d\",\r\n  \"TrusteeUId\": \"d8adefb2-a142-4397-82b3-9b0d9df37d08\"\r\n}";
             JsonAceConverter aceConverter = new JsonAceConverter();
             IAccessControlEntry ace = JsonConvert.DeserializeObject<IAccessControlEntry>( aace, aceConverter );
-
+            
             string json = JsonConvert.SerializeObject( ace, aceConverter );
+            // test JsonAceConverterConverter
+            string acecBefore = "{\"UId\":\"ce728065-c4cf-4964-bb72-433f7c88f3cb\",\"SourceRight\":\"Enabled\",\"SourceRightType\":\"Suplex.Security.AclModel.UIRight, Suplex.Security.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\"TargetRight\":\"List, Read\",\"TargetRightType\":\"Suplex.Security.AclModel.FileSystemRight, Suplex.Security.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\"Inheritable\":true}";
+            JsonAceConverterConverter aceConverterConverter = new JsonAceConverterConverter();
+            IAccessControlEntryConverter acecAfter = JsonConvert.DeserializeObject<IAccessControlEntryConverter>( acecBefore, aceConverterConverter );
+            // Console.System.Diagnostics.Debug.WriteLine( acecBefore );
+            //Console.WriteLine( JsonConvert.SerializeObject( acecAfter, aceConverterConverter ) );
+            Console.WriteLine( $"Ace converter serialization/deserialization works : { ( acecBefore == JsonConvert.SerializeObject(acecAfter, aceConverterConverter) ? "true" : "false" ) }" );
+            Console.ReadLine();
 
             SuplexSecurityHttpApiClient client = new SuplexSecurityHttpApiClient( "http://localhost:20000/suplex/" );
             // test secure object
@@ -308,7 +315,7 @@ namespace Suplex.Security.WebApi
         public async Task<IEnumerable<SecureObject>> GetSecureObjectsAsync()
         {
             string requestUri = $"{_rootPath}/so/all/";
-            return await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<IEnumerable<SecureObject>>( requestUri, new JsonAceConverter(), new JsonAceConverterConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public SecureObject GetSecureObjectByUId(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
@@ -324,7 +331,7 @@ namespace Suplex.Security.WebApi
         public async Task<SecureObject> GetSecureObjectByUIdAsync(Guid secureObjectUId, bool includeChildren, bool includeDisabled = false)
         {
             string requestUri = $"{_rootPath}/so/{secureObjectUId}/?{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter(), new JsonAceConverterConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public SecureObject GetSecureObjectByUniqueName(string uniqueName, bool includeChildren, bool includeDisabled = false)
@@ -340,7 +347,7 @@ namespace Suplex.Security.WebApi
         public async Task<SecureObject> GetSecureObjectByUniqueNameAsync(string uniqueName, bool includeChildren, bool includeDisabled = false)
         {
             string requestUri = $"{_rootPath}/so/?{nameof( uniqueName )}={uniqueName}&{nameof( includeChildren )}={includeChildren}&{nameof( includeDisabled )}={includeDisabled}";
-            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await GetAsync<SecureObject>( requestUri, new JsonAceConverter(), new JsonAceConverterConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public SecureObject UpsertSecureObject(SecureObject secureObject)
@@ -356,7 +363,7 @@ namespace Suplex.Security.WebApi
         public async Task<SecureObject> UpsertSecureObjectAsync(SecureObject secureObject)
         {
             string requestUri = $"{_rootPath}/so/";
-            return await PostAsync<SecureObject>( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            return await PostAsync<SecureObject>( secureObject, requestUri, new JsonAceConverter(), new JsonAceConverterConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void UpdateSecureObjectParentUId(ISecureObject secureObject, Guid? newParentUId)
@@ -368,7 +375,7 @@ namespace Suplex.Security.WebApi
         {
             
             string requestUri = $"{_rootPath}/so/{newParentUId}/";
-            await PutAsync( secureObject, requestUri, new JsonAceConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
+            await PutAsync( secureObject, requestUri, new JsonAceConverter(), new JsonAceConverterConverter() ).ConfigureAwait( _configureAwaitContinueOnCapturedContext );
         }
 
         public void UpdateSecureObjectParentUId(Guid secureObjectUId, Guid? newParentUId)
